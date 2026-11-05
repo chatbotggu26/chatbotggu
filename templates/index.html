@@ -1,0 +1,2530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GGU AI Workstation — Fullpage Liquid Glass Chatbot</title>
+    
+    <!-- Marked.js for High-Fidelity Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* ==========================================================================
+           CSS Reset & Design Tokens
+           ========================================================================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-canvas: #0b0f19;
+            --primary-blue: #0284c7;
+            --primary-blue-hover: #0369a1;
+            --primary-blue-active: #075985;
+            --primary-blue-light: #e0f2fe;
+
+            --surface-white: #ffffff;
+            --surface-muted: rgba(255, 255, 255, 0.35);
+            --border-glass: rgba(255, 255, 255, 0.55);
+            --border-glass-subtle: rgba(255, 255, 255, 0.3);
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --text-tertiary: #64748b;
+            --text-white: #ffffff;
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 26px;
+            --radius-full: 9999px;
+
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            --transition-smooth: 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-canvas);
+            font-family: var(--font-family);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ==========================================================================
+           Ambient Campus Background Wallpaper
+           ========================================================================== */
+        .bg-wallpaper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-image: 
+                radial-gradient(circle at 50% 25%, rgba(255, 255, 255, 0.12) 0%, rgba(15, 23, 42, 0.4) 100%),
+                linear-gradient(180deg, rgba(15, 23, 42, 0.15) 0%, rgba(15, 23, 42, 0.55) 100%),
+                url('/static/images/ggu-bg.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            z-index: 0;
+            transition: filter 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .bg-wallpaper.blurred {
+            filter: blur(20px) saturate(190%) brightness(0.86);
+            transform: scale(1.04);
+        }
+
+        /* ==========================================================================
+           App Shell Container (Fullpage Viewport)
+           ========================================================================== */
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .spa-view {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity var(--transition-smooth), transform var(--transition-smooth), visibility var(--transition-smooth);
+            will-change: transform, opacity;
+        }
+
+        /* ==========================================================================
+           State 1: Landing Screen
+           ========================================================================== */
+        .landing-screen {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+            pointer-events: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            z-index: 15;
+        }
+
+        .landing-screen.is-hidden {
+            opacity: 0;
+            transform: translateY(-24px);
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .landing-card {
+            background: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.52) 0%, 
+                rgba(255, 255, 255, 0.25) 100%
+            );
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border-radius: 28px;
+            padding: 3.25rem 2.75rem;
+            box-shadow: 
+                0 30px 70px rgba(0, 0, 0, 0.32),
+                inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
+                inset 0 -1.5px 2px rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.75);
+            width: 100%;
+            max-width: 740px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .landing-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 42%;
+            background: linear-gradient(
+                180deg, 
+                rgba(255, 255, 255, 0.5) 0%, 
+                rgba(255, 255, 255, 0.0) 100%
+            );
+            border-radius: 28px 28px 120px 120px / 28px 28px 45px 45px;
+            pointer-events: none;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(224, 242, 254, 0.65) 100%);
+            backdrop-filter: blur(14px);
+            color: #0284c7;
+            border: 1.5px solid rgba(255, 255, 255, 0.95);
+            border-radius: var(--radius-full);
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .brand-badge svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .landing-title {
+            font-size: 2.45rem;
+            font-weight: 800;
+            color: #0b1329;
+            line-height: 1.2;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 14px rgba(255, 255, 255, 0.7);
+        }
+
+        .landing-subtitle {
+            font-size: 1.05rem;
+            color: #1e293b;
+            font-weight: 500;
+            max-width: 560px;
+            line-height: 1.6;
+            text-shadow: 0 1px 6px rgba(255, 255, 255, 0.6);
+        }
+
+        .starter-prompts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.85rem;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .prompt-chip {
+            background: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.48) 0%, 
+                rgba(255, 255, 255, 0.22) 100%
+            );
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: var(--radius-md);
+            padding: 0.95rem 1.15rem;
+            text-align: left;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #0f172a;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85);
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+        }
+
+        .prompt-chip:hover {
+            background: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.75) 0%, 
+                rgba(255, 255, 255, 0.48) 100%
+            );
+            border-color: rgba(255, 255, 255, 0.98);
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16), inset 0 1.5px 0 rgba(255, 255, 255, 1);
+        }
+
+        .landing-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            background: linear-gradient(
+                135deg, 
+                rgba(56, 189, 248, 0.95) 0%, 
+                rgba(2, 132, 199, 0.92) 55%,
+                rgba(3, 105, 161, 0.95) 100%
+            );
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: var(--text-white);
+            border: 1.5px solid rgba(255, 255, 255, 0.65);
+            border-radius: var(--radius-md);
+            padding: 1rem 2.5rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 12px 28px rgba(14, 165, 233, 0.38), 
+                inset 0 1.5px 1px rgba(255, 255, 255, 0.8),
+                inset 0 -1.5px 2px rgba(3, 105, 161, 0.4);
+            margin-top: 0.5rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+        }
+
+        .landing-cta-btn:hover {
+            background: linear-gradient(
+                135deg, 
+                rgba(125, 211, 252, 0.98) 0%, 
+                rgba(14, 165, 233, 0.95) 55%,
+                rgba(2, 132, 199, 0.98) 100%
+            );
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 16px 36px rgba(14, 165, 233, 0.5), inset 0 1.5px 1px #ffffff;
+        }
+
+        /* ==========================================================================
+           State 2: Fullpage Liquid Glass Chat Interface
+           ========================================================================== */
+        .chat-interface {
+            opacity: 0;
+            transform: translateY(30px);
+            visibility: hidden;
+            pointer-events: none;
+            display: flex;
+            flex-direction: row;
+            width: 100vw;
+            height: 100vh;
+            z-index: 20;
+            background: transparent;
+        }
+
+        .chat-interface.is-active {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        /* ==========================================================================
+           Liquid Glass Sidebar (Previous Chats)
+           ========================================================================== */
+        .chat-sidebar {
+            width: 310px;
+            height: 100vh;
+            background: linear-gradient(
+                160deg, 
+                rgba(255, 255, 255, 0.5) 0%, 
+                rgba(255, 255, 255, 0.22) 100%
+            );
+            backdrop-filter: blur(32px) saturate(190%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%);
+            border-right: 1px solid var(--border-glass);
+            box-shadow: 6px 0 35px rgba(0, 0, 0, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.75);
+            display: flex;
+            flex-direction: column;
+            transition: transform var(--transition-smooth), margin-left var(--transition-smooth);
+            position: relative;
+            z-index: 30;
+            flex-shrink: 0;
+        }
+
+        .chat-sidebar.collapsed {
+            margin-left: -310px;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem 1.25rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .sidebar-logo-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.95) 0%, rgba(2, 132, 199, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 2px 10px rgba(14, 165, 233, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar-brand-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+        }
+
+        .sidebar-new-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            background: linear-gradient(
+                135deg, 
+                rgba(56, 189, 248, 0.95) 0%, 
+                rgba(2, 132, 199, 0.92) 60%,
+                rgba(3, 105, 161, 0.95) 100%
+            );
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: var(--radius-md);
+            padding: 0.7rem 1rem;
+            font-size: 0.92rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 
+                0 4px 16px rgba(14, 165, 233, 0.35), 
+                inset 0 1.5px 1px rgba(255, 255, 255, 0.75);
+        }
+
+        .sidebar-new-btn:hover {
+            background: linear-gradient(
+                135deg, 
+                rgba(125, 211, 252, 0.98) 0%, 
+                rgba(14, 165, 233, 0.95) 60%,
+                rgba(2, 132, 199, 0.98) 100%
+            );
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+        }
+
+        .sidebar-history-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .sidebar-history-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .sidebar-history-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.12);
+            border-radius: var(--radius-full);
+        }
+
+        .history-section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            letter-spacing: 0.08em;
+            padding: 0.25rem 0.5rem 0.4rem;
+            text-transform: uppercase;
+        }
+
+        /* Individual History Item Tile */
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.38);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: var(--radius-md);
+            padding: 0.65rem 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.68);
+            border-color: rgba(255, 255, 255, 0.85);
+            transform: translateX(2px);
+        }
+
+        .history-item.active {
+            background: linear-gradient(
+                135deg, 
+                rgba(224, 242, 254, 0.65) 0%, 
+                rgba(186, 230, 253, 0.45) 100%
+            );
+            border-color: rgba(56, 189, 248, 0.75);
+            box-shadow: 
+                inset 3.5px 0 0 #0284c7, 
+                0 4px 14px rgba(14, 165, 233, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .history-item-left {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .history-item-icon {
+            font-size: 0.85rem;
+            opacity: 0.75;
+            flex-shrink: 0;
+        }
+
+        .history-item-title {
+            font-size: 0.875rem;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
+        }
+
+        .history-item.active .history-item-title {
+            font-weight: 700;
+            color: #0284c7;
+        }
+
+        .history-delete-btn {
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-sm);
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .history-item:hover .history-delete-btn {
+            opacity: 1;
+        }
+
+        .history-delete-btn:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+        }
+
+        .sidebar-footer {
+            padding: 0.85rem 1.25rem 1.15rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.35);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sidebar-back-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 0.825rem;
+            font-weight: 600;
+            padding: 0.5rem 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-back-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: #0f172a;
+        }
+
+        /* ==========================================================================
+           Main Chat Workstation (Fullpage Liquid Glass Stage)
+           ========================================================================== */
+        .chat-main {
+            flex: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.35) 0%, 
+                rgba(255, 255, 255, 0.16) 100%
+            );
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Chat Navbar */
+        .chat-navbar {
+            padding: 0.9rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.42);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-bottom: 1px solid var(--border-glass);
+            z-index: 25;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .toggle-sidebar-btn {
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 0.45rem 0.65rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: scale(1.02);
+        }
+
+        .chat-active-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-title-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #0ea5e9;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.35);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.45); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(14, 165, 233, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+
+        .chat-subtitle-text {
+            font-size: 0.76rem;
+            color: var(--text-tertiary);
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .navbar-action-btn {
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 0.45rem 0.85rem;
+            color: var(--text-secondary);
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .navbar-action-btn:hover {
+            background: rgba(255, 255, 255, 0.75);
+            color: #0f172a;
+        }
+
+        /* Messages Container */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: var(--radius-full);
+        }
+
+        /* Centered Reading Width Column */
+        .messages-content-wrapper {
+            width: 100%;
+            max-width: 920px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message-row {
+            display: flex;
+            width: 100%;
+            animation: messageAppear 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes messageAppear {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-row.user {
+            justify-content: flex-end;
+        }
+
+        .message-row.bot {
+            justify-content: flex-start;
+        }
+
+        .message-bubble {
+            max-width: 78%;
+            padding: 1.1rem 1.4rem;
+            font-size: 0.96rem;
+            line-height: 1.62;
+            word-wrap: break-word;
+            position: relative;
+        }
+
+        /* User Liquid Glass Message */
+        .message-row.user .message-bubble {
+            background: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.88) 0%, 
+                rgba(255, 255, 255, 0.65) 100%
+            );
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            color: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: var(--radius-xl) var(--radius-xl) 6px var(--radius-xl);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+        }
+
+        /* Bot Liquid Glass Message (Light Blue Liquid Glass) */
+        .message-row.bot .message-bubble {
+            background: linear-gradient(
+                135deg, 
+                rgba(56, 189, 248, 0.92) 0%, 
+                rgba(2, 132, 199, 0.90) 60%,
+                rgba(3, 105, 161, 0.92) 100%
+            );
+            backdrop-filter: blur(24px) saturate(190%);
+            -webkit-backdrop-filter: blur(24px) saturate(190%);
+            color: #ffffff;
+            border-radius: var(--radius-xl) var(--radius-xl) var(--radius-xl) 6px;
+            box-shadow: 
+                0 12px 32px rgba(14, 165, 233, 0.32), 
+                inset 0 1.5px 1.5px rgba(255, 255, 255, 0.75),
+                inset 0 -1.5px 2px rgba(3, 105, 161, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+        }
+
+        .user-attachment-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: rgba(14, 165, 233, 0.12);
+            color: #0284c7;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.84rem;
+            font-weight: 700;
+            margin-bottom: 0.55rem;
+        }
+
+        /* Marked.js Markdown content styling */
+        .message-row.bot .message-bubble p {
+            margin: 0.45rem 0;
+        }
+        .message-row.bot .message-bubble p:first-child {
+            margin-top: 0;
+        }
+        .message-row.bot .message-bubble p:last-child {
+            margin-bottom: 0;
+        }
+        .message-row.bot .message-bubble strong {
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+        }
+        .message-row.bot .message-bubble ul, 
+        .message-row.bot .message-bubble ol {
+            margin: 0.45rem 0 0.45rem 1.4rem;
+        }
+        .message-row.bot .message-bubble li {
+            margin-bottom: 0.3rem;
+        }
+        .message-row.bot .message-bubble h1,
+        .message-row.bot .message-bubble h2,
+        .message-row.bot .message-bubble h3 {
+            margin: 0.75rem 0 0.35rem;
+            color: #ffffff;
+            line-height: 1.3;
+        }
+        .message-row.bot .message-bubble code {
+            font-family: var(--font-mono);
+            font-size: 0.86em;
+            padding: 0.15em 0.4em;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.22);
+            color: #ffffff;
+        }
+        .message-row.bot .message-bubble pre {
+            margin: 0.65rem 0;
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            background: rgba(0, 0, 0, 0.32);
+        }
+        .message-row.bot .message-bubble pre code {
+            background: transparent;
+            padding: 0;
+            font-size: 0.86em;
+        }
+        .message-row.bot .message-bubble table {
+            border-collapse: collapse;
+            margin: 0.65rem 0;
+            width: 100%;
+            font-size: 0.86rem;
+        }
+        .message-row.bot .message-bubble th,
+        .message-row.bot .message-bubble td {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            padding: 0.4rem 0.65rem;
+        }
+        .message-row.bot .message-bubble th {
+            background: rgba(0, 0, 0, 0.18);
+        }
+
+        /* Error Message Card with Retry */
+        .message-row.error .message-bubble {
+            background: #fff8f8;
+            color: #b71c1c;
+            border: 1px solid #ffcdd2;
+            border-radius: var(--radius-lg);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .error-header {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-weight: 700;
+            color: #c62828;
+            font-size: 0.92rem;
+        }
+
+        .error-body {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #424242;
+        }
+
+        .retry-chat-btn {
+            align-self: flex-start;
+            background: #c62828;
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 0.45rem 0.95rem;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(198, 40, 40, 0.25);
+            margin-top: 0.25rem;
+        }
+
+        .retry-chat-btn:hover {
+            background: #b71c1c;
+            transform: translateY(-1px);
+        }
+
+        /* Typing Indicator */
+        .typing-bubble {
+            background: linear-gradient(
+                135deg, 
+                rgba(56, 189, 248, 0.92) 0%, 
+                rgba(2, 132, 199, 0.90) 100%
+            ) !important;
+            backdrop-filter: blur(24px) saturate(190%);
+            -webkit-backdrop-filter: blur(24px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.75) !important;
+            padding: 0.9rem 1.25rem !important;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .typing-indicator span {
+            width: 7px;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounceDot 1.4s infinite both;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounceDot {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1.15); opacity: 1; }
+        }
+
+        /* Floating Bottom Liquid Glass Input Dock */
+        .chat-input-container {
+            padding: 1rem 2rem 1.75rem;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 25;
+        }
+
+        .chat-input-wrapper {
+            width: 100%;
+            max-width: 920px;
+            background: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.65) 0%, 
+                rgba(255, 255, 255, 0.35) 100%
+            );
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 0.85rem 1.25rem;
+            box-shadow: 
+                0 16px 40px rgba(0, 0, 0, 0.16),
+                inset 0 1.5px 1px rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* File Preview Pill with Light Blue Glass */
+        .file-preview-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(224, 242, 254, 0.8) 0%, rgba(186, 230, 253, 0.6) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.6);
+            border-radius: var(--radius-md);
+            padding: 0.45rem 0.85rem;
+            animation: slideDown 0.2s ease forwards;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.12), inset 0 1px 0 #ffffff;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-preview-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.86rem;
+            color: #0369a1;
+            font-weight: 700;
+        }
+
+        .file-preview-size {
+            font-size: 0.76rem;
+            color: #0284c7;
+            font-weight: normal;
+        }
+
+        .remove-file-btn {
+            background: rgba(14, 165, 233, 0.12);
+            border: none;
+            border-radius: var(--radius-full);
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0284c7;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-file-btn:hover {
+            background: rgba(198, 40, 40, 0.15);
+            color: #c62828;
+        }
+
+        .chat-form {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .attach-btn {
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-md);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .attach-btn:hover:not(:disabled) {
+            background: rgba(224, 242, 254, 0.75);
+            color: #0284c7;
+        }
+
+        .attach-btn svg {
+            width: 21px;
+            height: 21px;
+        }
+
+        /* Microphone Button & Recording Bar Styles */
+        .mic-btn {
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-md);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .mic-btn:hover:not(:disabled) {
+            background: rgba(224, 242, 254, 0.75);
+            color: #0284c7;
+        }
+
+        .mic-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .mic-btn.is-recording {
+            background: rgba(220, 38, 38, 0.18) !important;
+            color: #dc2626 !important;
+            border: 1px solid rgba(220, 38, 38, 0.6) !important;
+            box-shadow: 0 0 16px rgba(220, 38, 38, 0.45);
+            animation: pulseMic 1.2s infinite ease-in-out;
+        }
+
+        @keyframes pulseMic {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+            50% { transform: scale(1.08); box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+        }
+
+        /* Live Voice Recording Status Bar */
+        .recording-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(254, 226, 226, 0.85) 0%, rgba(254, 202, 202, 0.6) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.45);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius-md);
+            padding: 0.55rem 0.95rem;
+            animation: slideDown 0.25s ease forwards;
+        }
+
+        .recording-left {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-size: 0.88rem;
+            color: #991b1b;
+            font-weight: 700;
+        }
+
+        .recording-dot {
+            width: 10px;
+            height: 10px;
+            background: #dc2626;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #dc2626;
+            animation: blinkDot 0.9s infinite alternate;
+        }
+
+        @keyframes blinkDot {
+            from { opacity: 0.35; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1.15); }
+        }
+
+        .recording-timer {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            background: rgba(255, 255, 255, 0.65);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            color: #7f1d1d;
+        }
+
+        .sound-wave-bars {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            height: 16px;
+        }
+
+        .sound-wave-bars span {
+            width: 3px;
+            background: #dc2626;
+            border-radius: 2px;
+            display: inline-block;
+            animation: soundWave 1.2s infinite ease-in-out;
+        }
+
+        .sound-wave-bars span:nth-child(1) { height: 6px; animation-delay: 0.0s; }
+        .sound-wave-bars span:nth-child(2) { height: 14px; animation-delay: 0.2s; }
+        .sound-wave-bars span:nth-child(3) { height: 18px; animation-delay: 0.4s; }
+        .sound-wave-bars span:nth-child(4) { height: 11px; animation-delay: 0.1s; }
+        .sound-wave-bars span:nth-child(5) { height: 8px; animation-delay: 0.3s; }
+
+        @keyframes soundWave {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.4; }
+            50% { transform: scaleY(1.2); opacity: 1; }
+        }
+
+        .recording-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recording-action-btn {
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 0.35rem 0.75rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .recording-action-btn.cancel {
+            background: rgba(0, 0, 0, 0.08);
+            color: #7f1d1d;
+        }
+        .recording-action-btn.cancel:hover {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .recording-action-btn.send {
+            background: #dc2626;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+        }
+        .recording-action-btn.send:hover {
+            background: #b91c1c;
+            transform: scale(1.02);
+        }
+
+        /* Speaker Toggle Button in Navbar */
+        .tts-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .tts-toggle-btn.active {
+            background: rgba(224, 242, 254, 0.8) !important;
+            border-color: rgba(56, 189, 248, 0.7) !important;
+            color: #0284c7 !important;
+            box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2) !important;
+        }
+
+        /* Bubble Read Aloud Audio Control */
+        .bubble-audio-btn {
+            background: rgba(255, 255, 255, 0.24);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-full);
+            padding: 0.22rem 0.65rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.75rem;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+        }
+        .bubble-audio-btn:hover {
+            background: rgba(255, 255, 255, 0.42);
+            transform: translateY(-1px);
+        }
+        .bubble-audio-btn.speaking {
+            background: #ffffff;
+            color: #0284c7;
+            border-color: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+
+        .chat-textarea {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.98rem;
+            color: #0f172a;
+            resize: none;
+            min-height: 24px;
+            max-height: 120px;
+            line-height: 1.5;
+            outline: none;
+            padding: 0.4rem 0.25rem;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        /* Completely remove up/down scrollbar buttons and scrollbar track */
+        .chat-textarea::-webkit-scrollbar,
+        .chat-textarea::-webkit-scrollbar-button,
+        .chat-textarea::-webkit-scrollbar-track,
+        .chat-textarea::-webkit-scrollbar-thumb {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+        }
+
+        .chat-textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .send-btn {
+            background: linear-gradient(
+                135deg, 
+                #38bdf8 0%, 
+                #0284c7 60%, 
+                #0369a1 100%
+            );
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-radius: var(--radius-md);
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            box-shadow: 
+                0 6px 18px rgba(14, 165, 233, 0.38), 
+                inset 0 1.5px 1px rgba(255, 255, 255, 0.75);
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: linear-gradient(
+                135deg, 
+                #7dd3fc 0%, 
+                #0ea5e9 60%, 
+                #0284c7 100%
+            );
+            transform: scale(1.04);
+            box-shadow: 0 8px 24px rgba(14, 165, 233, 0.5), inset 0 1.5px 1px #ffffff;
+        }
+
+        .send-btn:disabled {
+            background: rgba(0, 0, 0, 0.1);
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            transform: translateX(1px);
+        }
+
+        /* Mobile overlay backdrop */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            z-index: 28;
+        }
+
+        /* ==========================================================================
+           Responsive Adjustments
+           ========================================================================== */
+        @media (max-width: 860px) {
+            .chat-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                transform: translateX(-100%);
+                margin-left: 0 !important;
+            }
+
+            .chat-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.mobile-open {
+                display: block;
+            }
+
+            .landing-card {
+                padding: 2.25rem 1.5rem;
+            }
+
+            .landing-title {
+                font-size: 1.85rem;
+            }
+
+            .starter-prompts {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-messages {
+                padding: 1.25rem 1rem;
+            }
+
+            .message-bubble {
+                max-width: 90%;
+            }
+
+            .chat-input-container {
+                padding: 0.75rem 1rem 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Ambient Campus Background Wallpaper -->
+    <div id="bg-wallpaper" class="bg-wallpaper" aria-hidden="true"></div>
+
+    <main class="app-container">
+
+        <!-- ====================================================================
+             State 1: Landing Screen
+             ==================================================================== -->
+        <section id="landing-screen" class="spa-view landing-screen" aria-label="Welcome Screen">
+            <div class="landing-card">
+                
+                <div class="brand-badge">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                    </svg>
+                    <span>Godavari Global University</span>
+                </div>
+
+                <h1 class="landing-title">Godavari Global University</h1>
+                <p class="landing-subtitle">
+                    Step into the future at GGU where a vibrant 300-acre campus meets academic excellence. Access previous chat history, upload images or PDFs, and explore intelligent conversations powered by Gemini AI.
+                </p>
+
+                <!-- Conversation Starter Chips (Liquid Glass Tiles) -->
+                <div class="starter-prompts" role="region" aria-label="Example conversation starters">
+                    <button type="button" class="prompt-chip" data-prompt="Tell me about Godavari Global University (GGU), its 300-acre campus, programs, and academic excellence.">
+                        <span>🏛️</span>
+                        <span>Explore GGU campus & programs</span>
+                    </button>
+                    <button type="button" class="prompt-chip" data-prompt="Give me a comprehensive overview of DBMS topics in engineering.">
+                        <span>📊</span>
+                        <span>DBMS topics in engineering</span>
+                    </button>
+                    <button type="button" class="prompt-chip" data-prompt="Write a Python script that reads a CSV file and calculates summary statistics.">
+                        <span>💻</span>
+                        <span>Python script to analyze CSV data</span>
+                    </button>
+                    <button type="button" class="prompt-chip" data-prompt="Draft a polite and professional student leave request email.">
+                        <span>✉️</span>
+                        <span>Draft student leave request email</span>
+                    </button>
+                </div>
+
+                <!-- Main CTA Action Button -->
+                <button type="button" id="start-chat-btn" class="landing-cta-btn" aria-label="Explore Chatbot">
+                    <span>Explore Chatbot</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- ====================================================================
+             State 2: Fullpage Liquid Glass Chat Interface + Sidebar
+             ==================================================================== -->
+        <section id="chat-interface" class="spa-view chat-interface" aria-label="Interactive Chat Session">
+            
+            <!-- Mobile Sidebar Backdrop Overlay -->
+            <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+
+            <!-- Liquid Glass Sidebar: Previous Chats -->
+            <aside id="chat-sidebar" class="chat-sidebar" aria-label="Previous chat sessions">
+                
+                <div class="sidebar-header">
+                    <div class="sidebar-brand">
+                        <div class="sidebar-logo-circle" aria-hidden="true">G</div>
+                        <span class="sidebar-brand-text">GGU AI Workspace</span>
+                    </div>
+
+                    <!-- New Chat Button -->
+                    <button type="button" id="sidebar-new-chat-btn" class="sidebar-new-btn" title="Create a new conversation" aria-label="Create a new conversation">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <span>New Conversation</span>
+                    </button>
+                </div>
+
+                <!-- Chat History List Container -->
+                <div class="sidebar-history-container">
+                    <div class="history-section-label">Previous Chats</div>
+                    <div id="history-list" class="history-list" role="list">
+                        <!-- Populated dynamically via /api/sessions -->
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <button type="button" id="back-to-landing-btn" class="sidebar-back-btn" title="Return to Welcome Screen" aria-label="Return to Welcome Screen">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <span>Welcome Screen</span>
+                    </button>
+                </div>
+
+            </aside>
+
+            <!-- Main Chat Stage -->
+            <div id="chat-main" class="chat-main">
+                
+                <!-- Navbar -->
+                <header class="chat-navbar">
+                    <div class="navbar-left">
+                        <button type="button" id="toggle-sidebar-btn" class="toggle-sidebar-btn" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="9" y1="3" x2="9" y2="21"></line>
+                            </svg>
+                        </button>
+
+                        <div class="chat-active-info">
+                            <div class="chat-title-text">
+                                <span id="active-chat-title">New Conversation</span>
+                                <span class="online-dot" title="Gemini AI is online"></span>
+                            </div>
+                            <span class="chat-subtitle-text">Fullpage Liquid Glass Workstation</span>
+                        </div>
+                    </div>
+
+                    <div class="navbar-right">
+                        <!-- Voice Output TTS Toggle Button -->
+                        <button type="button" id="tts-toggle-btn" class="navbar-action-btn tts-toggle-btn active" title="Toggle Voice Reading (Text-to-Speech)" aria-label="Toggle Voice Reading">
+                            <span class="tts-icon">🔊</span>
+                            <span class="tts-text">Voice: On</span>
+                        </button>
+
+                        <button type="button" id="clear-current-chat-btn" class="navbar-action-btn" title="Clear current messages" aria-label="Clear current messages">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            <span>Clear</span>
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Scrollable Messages Container -->
+                <div id="messages-container" class="chat-messages" role="log" aria-live="polite" aria-label="Conversation Messages">
+                    <div class="messages-content-wrapper" id="messages-wrapper">
+                        <!-- Messages dynamically rendered here -->
+                    </div>
+                </div>
+
+                <!-- Floating Bottom Input Dock -->
+                <div class="chat-input-container">
+                    <div class="chat-input-wrapper">
+                        
+                        <!-- File Preview Bar -->
+                        <div id="file-preview-bar" class="file-preview-bar" style="display: none;" aria-live="polite">
+                            <div class="file-preview-content">
+                                <span id="file-preview-icon" class="file-preview-icon">📎</span>
+                                <span id="file-preview-name" class="file-preview-name">document.pdf</span>
+                                <span id="file-preview-size" class="file-preview-size">(0 KB)</span>
+                            </div>
+                            <button type="button" id="remove-file-btn" class="remove-file-btn" title="Remove attachment" aria-label="Remove attachment">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Live Voice Recording Banner -->
+                        <div id="recording-bar" class="recording-bar" style="display: none;" aria-live="assertive">
+                            <div class="recording-left">
+                                <span class="recording-dot"></span>
+                                <span class="recording-status">Listening...</span>
+                                <span id="recording-timer" class="recording-timer">00:00</span>
+                                <div class="sound-wave-bars" aria-hidden="true">
+                                    <span></span><span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
+                            <div class="recording-actions">
+                                <button type="button" id="cancel-recording-btn" class="recording-action-btn cancel" title="Cancel voice recording">Cancel</button>
+                                <button type="button" id="send-recording-btn" class="recording-action-btn send" title="Send recorded voice">Send Voice</button>
+                            </div>
+                        </div>
+
+                        <!-- Form Input -->
+                        <form id="chat-form" class="chat-form" aria-label="Chat input form">
+                            
+                            <!-- Hidden File Input -->
+                            <input 
+                                type="file" 
+                                id="file-input" 
+                                accept=".png,.jpg,.jpeg,.webp,.pdf,image/png,image/jpeg,image/webp,application/pdf" 
+                                style="display: none;"
+                                aria-hidden="true"
+                            >
+
+                            <!-- Attachment Button (Paperclip) -->
+                            <button type="button" id="attach-btn" class="attach-btn" title="Attach Image or PDF" aria-label="Attach Image or PDF">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                </svg>
+                            </button>
+
+                            <!-- Microphone Button (Voice Assistant) -->
+                            <button type="button" id="mic-btn" class="mic-btn" title="Speak to AI Assistant (Click to record)" aria-label="Voice Input Microphone">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                                </svg>
+                            </button>
+
+                            <textarea 
+                                id="user-input" 
+                                class="chat-textarea" 
+                                placeholder="Type a message..." 
+                                rows="1" 
+                                aria-label="Message input"
+                            ></textarea>
+                            
+                            <button type="submit" id="send-btn" class="send-btn" title="Send message" aria-label="Send message">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z"/>
+                                </svg>
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ==========================================================================
+         Client Application Logic (Vanilla JavaScript + marked.js)
+         ========================================================================== -->
+    <script>
+        (function() {
+            "use strict";
+
+            if (typeof marked !== "undefined") {
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true
+                });
+            }
+
+            // ----------------------------------------------------------------------
+            // DOM Elements Cache
+            // ----------------------------------------------------------------------
+            const elements = {
+                bgWallpaper: document.getElementById("bg-wallpaper"),
+                landingScreen: document.getElementById("landing-screen"),
+                chatInterface: document.getElementById("chat-interface"),
+                chatSidebar: document.getElementById("chat-sidebar"),
+                sidebarOverlay: document.getElementById("sidebar-overlay"),
+                toggleSidebarBtn: document.getElementById("toggle-sidebar-btn"),
+                historyList: document.getElementById("history-list"),
+                sidebarNewChatBtn: document.getElementById("sidebar-new-chat-btn"),
+                backToLandingBtn: document.getElementById("back-to-landing-btn"),
+                clearCurrentChatBtn: document.getElementById("clear-current-chat-btn"),
+                activeChatTitle: document.getElementById("active-chat-title"),
+                messagesContainer: document.getElementById("messages-container"),
+                messagesWrapper: document.getElementById("messages-wrapper"),
+                chatForm: document.getElementById("chat-form"),
+                userInput: document.getElementById("user-input"),
+                sendBtn: document.getElementById("send-btn"),
+                attachBtn: document.getElementById("attach-btn"),
+                micBtn: document.getElementById("mic-btn"),
+                ttsToggleBtn: document.getElementById("tts-toggle-btn"),
+                recordingBar: document.getElementById("recording-bar"),
+                recordingTimer: document.getElementById("recording-timer"),
+                cancelRecordingBtn: document.getElementById("cancel-recording-btn"),
+                sendRecordingBtn: document.getElementById("send-recording-btn"),
+                fileInput: document.getElementById("file-input"),
+                filePreviewBar: document.getElementById("file-preview-bar"),
+                filePreviewIcon: document.getElementById("file-preview-icon"),
+                filePreviewName: document.getElementById("file-preview-name"),
+                filePreviewSize: document.getElementById("file-preview-size"),
+                removeFileBtn: document.getElementById("remove-file-btn"),
+                startChatBtn: document.getElementById("start-chat-btn"),
+                starterChips: document.querySelectorAll(".prompt-chip")
+            };
+
+            // ----------------------------------------------------------------------
+            // Application State
+            // ----------------------------------------------------------------------
+            let isGenerating = false;
+            let currentSelectedFile = null;
+            let activeSessionId = null;
+            let lastSentMessage = null;
+
+            // Voice Assistant & Audio State
+            let ttsEnabled = localStorage.getItem("ggu_tts_enabled") !== "false";
+            let mediaRecorder = null;
+            let audioChunks = [];
+            let isRecording = false;
+            let recordingTimerInterval = null;
+            let recordingSeconds = 0;
+            let activeMediaStream = null;
+            let currentSpeakingUtterance = null;
+            let currentSpeakingBtn = null;
+
+            // Official Welcome Message
+            const GGU_WELCOME_MESSAGE = `### 👋 Welcome to Godavari Global University (GGU) AI Assistant!
+
+I am your official interactive campus guide and academic mentor for our **NAAC A++ Accredited, 300-Acre Campus** with **28+ Years of Academic Excellence**.
+
+🎙️ **Voice Assistance is now active:**
+* **Ask with Voice:** Click or hold the 🎙️ **Microphone** button below to speak your question directly.
+* **Listen to Responses:** Toggle the 🔊 **Voice: On** button in the top bar to have responses read aloud automatically.
+* **Multimodal Uploads:** Attach **images** (.png, .jpg) or **PDF documents** (.pdf) with the 📎 button.
+* **Campus & Academics:** Inquire about B.Tech/M.Tech programs, admissions, placements, hostels, or ask any engineering subject question (DBMS, OS, AI, coding, etc.).
+
+How can I assist you today?`;
+
+            // ----------------------------------------------------------------------
+            // Helpers
+            // ----------------------------------------------------------------------
+            function formatFileSize(bytes) {
+                if (!bytes || bytes === 0) return "0 B";
+                const k = 1024;
+                const sizes = ["B", "KB", "MB", "GB"];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+            }
+
+            function getFileIcon(filename) {
+                if (!filename) return "📎";
+                const ext = filename.split(".").pop().toLowerCase();
+                if (ext === "pdf") return "📄";
+                if (["png", "jpg", "jpeg", "webp"].includes(ext)) return "🖼️";
+                if (["webm", "wav", "mp3", "ogg", "m4a"].includes(ext)) return "🎙️";
+                return "📎";
+            }
+
+            function scrollToBottom() {
+                elements.messagesContainer.scrollTop = elements.messagesContainer.scrollHeight;
+            }
+
+            function escapeHtml(string) {
+                if (!string) return "";
+                return String(string)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            function formatTimer(totalSecs) {
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            }
+
+            // ----------------------------------------------------------------------
+            // Text-to-Speech (window.speechSynthesis)
+            // ----------------------------------------------------------------------
+            function updateTtsButtonUI() {
+                if (!elements.ttsToggleBtn) return;
+                const iconSpan = elements.ttsToggleBtn.querySelector(".tts-icon");
+                const textSpan = elements.ttsToggleBtn.querySelector(".tts-text");
+                if (ttsEnabled) {
+                    elements.ttsToggleBtn.classList.add("active");
+                    if (iconSpan) iconSpan.textContent = "🔊";
+                    if (textSpan) textSpan.textContent = "Voice: On";
+                    elements.ttsToggleBtn.title = "Voice Reading: Active (Click to Mute)";
+                } else {
+                    elements.ttsToggleBtn.classList.remove("active");
+                    if (iconSpan) iconSpan.textContent = "🔇";
+                    if (textSpan) textSpan.textContent = "Voice: Off";
+                    elements.ttsToggleBtn.title = "Voice Reading: Muted (Click to Unmute)";
+                }
+            }
+
+            function stripMarkdownForSpeech(md) {
+                if (!md) return "";
+                return md
+                    .replace(/```[\s\S]*?```/g, "Code block omitted.")
+                    .replace(/`([^`]+)`/g, "$1")
+                    .replace(/!\[.*?\]\(.*?\)/g, "")
+                    .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+                    .replace(/#{1,6}\s+/g, "")
+                    .replace(/(\*\*|__)(.*?)\1/g, "$2")
+                    .replace(/(\*|_)(.*?)\1/g, "$2")
+                    .replace(/^\s*[-*+]\s+/gm, "")
+                    .replace(/^\s*\d+\.\s+/gm, "")
+                    .replace(/\|.*?\|/g, "")
+                    .replace(/\n{2,}/g, ". ")
+                    .replace(/\n/g, " ")
+                    .trim();
+            }
+
+            function stopAllSpeech() {
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+                if (currentSpeakingBtn) {
+                    currentSpeakingBtn.classList.remove("speaking");
+                    currentSpeakingBtn.innerHTML = `<span>🔊</span> <span>Read Aloud</span>`;
+                    currentSpeakingBtn = null;
+                }
+                currentSpeakingUtterance = null;
+            }
+
+            function speakText(rawText, sourceBtn = null) {
+                if (!window.speechSynthesis) return;
+
+                stopAllSpeech();
+
+                const cleanText = stripMarkdownForSpeech(rawText);
+                if (!cleanText) return;
+
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+
+                // Attempt selecting a natural English voice
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Samantha") || v.name.includes("David"))) || voices.find(v => v.lang.startsWith("en"));
+                if (preferredVoice) {
+                    utterance.voice = preferredVoice;
+                }
+
+                if (sourceBtn) {
+                    currentSpeakingBtn = sourceBtn;
+                    sourceBtn.classList.add("speaking");
+                    sourceBtn.innerHTML = `<span>⏹️</span> <span>Stop</span>`;
+                }
+
+                utterance.onend = () => {
+                    stopAllSpeech();
+                };
+                utterance.onerror = (e) => {
+                    console.warn("Speech error:", e);
+                    stopAllSpeech();
+                };
+
+                currentSpeakingUtterance = utterance;
+                window.speechSynthesis.speak(utterance);
+            }
+
+            function toggleSpeechForMessage(text, btn) {
+                if (currentSpeakingBtn === btn) {
+                    stopAllSpeech();
+                } else {
+                    speakText(text, btn);
+                }
+            }
+
+            // ----------------------------------------------------------------------
+            // Microphone & Voice Recording (MediaRecorder API)
+            // ----------------------------------------------------------------------
+            async function startVoiceRecording() {
+                if (isGenerating || isRecording) return;
+
+                stopAllSpeech();
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert("Audio recording is not supported in this browser. Please use Chrome, Edge, or Firefox.");
+                    return;
+                }
+
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    activeMediaStream = stream;
+
+                    // Choose supported audio MIME type
+                    let mimeType = "audio/webm;codecs=opus";
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = MediaRecorder.isTypeSupported("audio/webm")
+                            ? "audio/webm"
+                            : (MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "");
+                    }
+
+                    const options = mimeType ? { mimeType } : {};
+                    mediaRecorder = new MediaRecorder(stream, options);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data && e.data.size > 0) {
+                            audioChunks.push(e.data);
+                        }
+                    };
+
+                    mediaRecorder.start(250);
+                    isRecording = true;
+                    recordingSeconds = 0;
+                    elements.recordingTimer.textContent = "00:00";
+                    elements.recordingBar.style.display = "flex";
+                    elements.micBtn.classList.add("is-recording");
+                    elements.micBtn.title = "Recording voice... Click to Stop & Send";
+
+                    recordingTimerInterval = setInterval(() => {
+                        recordingSeconds++;
+                        elements.recordingTimer.textContent = formatTimer(recordingSeconds);
+                        if (recordingSeconds >= 180) { // Max 3 minutes
+                            stopAndSendVoiceRecording();
+                        }
+                    }, 1000);
+
+                } catch (err) {
+                    console.error("Microphone permission denied or error:", err);
+                    alert("Microphone permission was denied. Please allow microphone access in your browser settings to use voice input.");
+                }
+            }
+
+            function cancelVoiceRecording() {
+                if (!isRecording) return;
+                isRecording = false;
+                clearInterval(recordingTimerInterval);
+                recordingTimerInterval = null;
+
+                if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                    mediaRecorder.stop();
+                }
+                if (activeMediaStream) {
+                    activeMediaStream.getTracks().forEach(t => t.stop());
+                    activeMediaStream = null;
+                }
+                audioChunks = [];
+                elements.recordingBar.style.display = "none";
+                elements.micBtn.classList.remove("is-recording");
+                elements.micBtn.title = "Speak to AI Assistant (Click to record)";
+            }
+
+            function stopAndSendVoiceRecording() {
+                if (!isRecording) return;
+                isRecording = false;
+                clearInterval(recordingTimerInterval);
+                recordingTimerInterval = null;
+
+                const recordedTime = recordingSeconds;
+
+                mediaRecorder.onstop = () => {
+                    const mime = mediaRecorder.mimeType || "audio/webm";
+                    const ext = mime.includes("mp4") ? "mp4" : (mime.includes("wav") ? "wav" : "webm");
+                    const audioBlob = new Blob(audioChunks, { type: mime });
+
+                    if (activeMediaStream) {
+                        activeMediaStream.getTracks().forEach(t => t.stop());
+                        activeMediaStream = null;
+                    }
+
+                    elements.recordingBar.style.display = "none";
+                    elements.micBtn.classList.remove("is-recording");
+                    elements.micBtn.title = "Speak to AI Assistant (Click to record)";
+
+                    if (audioBlob.size < 1000) {
+                        console.warn("Recorded audio empty or too short.");
+                        return;
+                    }
+
+                    const voiceFileName = `voice_query_${Date.now()}.${ext}`;
+                    sendVoiceMessage(audioBlob, voiceFileName, recordedTime);
+                };
+
+                if (mediaRecorder.state !== "inactive") {
+                    mediaRecorder.stop();
+                }
+            }
+
+            async function sendVoiceMessage(audioBlob, filename, durationSecs) {
+                if (isGenerating) return;
+
+                const userTextNote = elements.userInput.value.trim();
+                const displayLabel = userTextNote 
+                    ? `${userTextNote} (🎙️ Voice Note ${durationSecs}s)` 
+                    : `🎙️ Voice Note (${durationSecs}s)`;
+
+                appendMessage("user", displayLabel, false, filename);
+
+                const formData = new FormData();
+                formData.append("file", audioBlob, filename);
+                if (userTextNote) formData.append("message", userTextNote);
+                if (activeSessionId) formData.append("session_id", activeSessionId);
+
+                elements.userInput.value = "";
+                elements.userInput.style.height = "auto";
+                clearSelectedFile();
+
+                isGenerating = true;
+                elements.sendBtn.disabled = true;
+                elements.attachBtn.disabled = true;
+                elements.micBtn.disabled = true;
+                elements.userInput.disabled = true;
+                showTypingIndicator();
+
+                try {
+                    const response = await fetch("/chat", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    removeTypingIndicator();
+
+                    if (!response.ok) {
+                        const errorMsg = data.error || `Server error status: ${response.status}`;
+                        appendMessage("bot", errorMsg, true);
+                    } else if (data.response) {
+                        lastSentMessage = null;
+                        appendMessage("bot", data.response);
+
+                        // Speak response automatically if voice output is on
+                        if (ttsEnabled) {
+                            speakText(data.response);
+                        }
+
+                        if (data.session_id) activeSessionId = data.session_id;
+                        if (data.title) elements.activeChatTitle.textContent = data.title;
+                        loadSessionsList();
+                    } else {
+                        appendMessage("bot", "No response received from the server.", true);
+                    }
+                } catch (err) {
+                    removeTypingIndicator();
+                    console.error("Communication error:", err);
+                    appendMessage("bot", `Communication error: ${err.message}`, true);
+                } finally {
+                    isGenerating = false;
+                    elements.sendBtn.disabled = false;
+                    elements.attachBtn.disabled = false;
+                    elements.micBtn.disabled = false;
+                    elements.userInput.disabled = false;
+                    elements.userInput.focus();
+                    scrollToBottom();
+                }
+            }
+
+            // ----------------------------------------------------------------------
+            // Message Appender
+            // ----------------------------------------------------------------------
+            function appendMessage(role, text, isError = false, attachedFileName = null) {
+                const messageRow = document.createElement("div");
+                messageRow.className = `message-row ${role}${isError ? " error" : ""}`;
+
+                const bubble = document.createElement("div");
+                bubble.className = "message-bubble";
+
+                if (attachedFileName) {
+                    const badge = document.createElement("div");
+                    badge.className = "user-attachment-badge";
+                    badge.innerHTML = `<span>${getFileIcon(attachedFileName)}</span> <span>${escapeHtml(attachedFileName)}</span>`;
+                    bubble.appendChild(badge);
+                }
+
+                const contentDiv = document.createElement("div");
+                if (role === "bot" && !isError) {
+                    contentDiv.innerHTML = typeof marked !== "undefined" ? marked.parse(text) : escapeHtml(text).replace(/\n/g, "<br>");
+                    bubble.appendChild(contentDiv);
+
+                    // Add Read Aloud audio button to each bot message bubble
+                    const audioBtn = document.createElement("button");
+                    audioBtn.type = "button";
+                    audioBtn.className = "bubble-audio-btn";
+                    audioBtn.innerHTML = `<span>🔊</span> <span>Read Aloud</span>`;
+                    audioBtn.title = "Read response aloud";
+                    audioBtn.addEventListener("click", () => {
+                        toggleSpeechForMessage(text, audioBtn);
+                    });
+                    bubble.appendChild(audioBtn);
+                } else if (isError) {
+                    contentDiv.innerHTML = `
+                        <div class="error-header">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span>Temporary Server Congestion</span>
+                        </div>
+                        <div class="error-body">${escapeHtml(text)}</div>
+                    `;
+
+                    if (lastSentMessage) {
+                        const retryBtn = document.createElement("button");
+                        retryBtn.className = "retry-chat-btn";
+                        retryBtn.innerHTML = `
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            <span>Retry Message</span>
+                        `;
+                        const promptToRetry = lastSentMessage;
+                        retryBtn.onclick = function() {
+                            retryBtn.disabled = true;
+                            retryBtn.innerHTML = "<span>Retrying...</span>";
+                            sendMessage(promptToRetry);
+                        };
+                        contentDiv.appendChild(retryBtn);
+                    }
+                    bubble.appendChild(contentDiv);
+                } else {
+                    contentDiv.innerHTML = escapeHtml(text).replace(/\n/g, "<br>");
+                    bubble.appendChild(contentDiv);
+                }
+
+                messageRow.appendChild(bubble);
+                elements.messagesWrapper.appendChild(messageRow);
+                scrollToBottom();
+
+                return messageRow;
+            }
+
+            // ----------------------------------------------------------------------
+            // Typing Indicator
+            // ----------------------------------------------------------------------
+            let typingIndicatorElement = null;
+
+            function showTypingIndicator() {
+                if (typingIndicatorElement) return;
+
+                const messageRow = document.createElement("div");
+                messageRow.className = "message-row bot typing-row";
+                messageRow.setAttribute("aria-label", "AI is analyzing and generating response");
+
+                const bubble = document.createElement("div");
+                bubble.className = "message-bubble typing-bubble";
+
+                const indicator = document.createElement("div");
+                indicator.className = "typing-indicator";
+                indicator.innerHTML = `<span></span><span></span><span></span>`;
+
+                bubble.appendChild(indicator);
+                messageRow.appendChild(bubble);
+                elements.messagesWrapper.appendChild(messageRow);
+                typingIndicatorElement = messageRow;
+                scrollToBottom();
+            }
+
+            function removeTypingIndicator() {
+                if (typingIndicatorElement && typingIndicatorElement.parentNode) {
+                    typingIndicatorElement.parentNode.removeChild(typingIndicatorElement);
+                }
+                typingIndicatorElement = null;
+            }
+
+            // ----------------------------------------------------------------------
+            // File Attachment Handling
+            // ----------------------------------------------------------------------
+            function updateFilePreview(file) {
+                if (!file) {
+                    currentSelectedFile = null;
+                    elements.fileInput.value = "";
+                    elements.filePreviewBar.style.display = "none";
+                    return;
+                }
+
+                currentSelectedFile = file;
+                elements.filePreviewIcon.textContent = getFileIcon(file.name);
+                elements.filePreviewName.textContent = file.name;
+                elements.filePreviewSize.textContent = `(${formatFileSize(file.size)})`;
+                elements.filePreviewBar.style.display = "flex";
+            }
+
+            function clearSelectedFile() {
+                updateFilePreview(null);
+            }
+
+            // ----------------------------------------------------------------------
+            // Sidebar History Management
+            // ----------------------------------------------------------------------
+            async function loadSessionsList() {
+                try {
+                    const res = await fetch("/api/sessions");
+                    if (!res.ok) return;
+                    const data = await res.json();
+
+                    activeSessionId = data.active_session_id;
+                    renderHistoryList(data.sessions || [], activeSessionId);
+                } catch (err) {
+                    console.warn("Failed to load sessions list:", err);
+                }
+            }
+
+            function renderHistoryList(sessions, activeId) {
+                elements.historyList.innerHTML = "";
+
+                if (sessions.length === 0) {
+                    elements.historyList.innerHTML = `<div style="font-size: 0.8rem; color: #94a3b8; padding: 0.5rem;">No previous chats yet.</div>`;
+                    return;
+                }
+
+                sessions.forEach(s => {
+                    const item = document.createElement("div");
+                    item.className = `history-item${s.id === activeId ? " active" : ""}`;
+                    item.setAttribute("role", "listitem");
+                    item.setAttribute("data-session-id", s.id);
+
+                    item.innerHTML = `
+                        <div class="history-item-left">
+                            <span class="history-item-icon">💬</span>
+                            <span class="history-item-title">${escapeHtml(s.title || "Conversation")}</span>
+                        </div>
+                        <button type="button" class="history-delete-btn" title="Delete chat" aria-label="Delete chat">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    `;
+
+                    // Click item to switch session
+                    item.addEventListener("click", (e) => {
+                        if (e.target.closest(".history-delete-btn")) return;
+                        selectSession(s.id);
+                    });
+
+                    // Delete button
+                    const delBtn = item.querySelector(".history-delete-btn");
+                    delBtn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        deleteSession(s.id);
+                    });
+
+                    elements.historyList.appendChild(item);
+                });
+            }
+
+            async function selectSession(sessionId) {
+                if (isGenerating || sessionId === activeSessionId) return;
+
+                stopAllSpeech();
+
+                try {
+                    const res = await fetch(`/api/sessions/${sessionId}`);
+                    if (!res.ok) return;
+                    const data = await res.json();
+
+                    activeSessionId = data.id;
+                    elements.activeChatTitle.textContent = data.title || "Conversation";
+
+                    // Render conversation history
+                    elements.messagesWrapper.innerHTML = "";
+                    clearSelectedFile();
+
+                    if (!data.history || data.history.length === 0) {
+                        appendMessage("bot", GGU_WELCOME_MESSAGE);
+                    } else {
+                        data.history.forEach(msg => {
+                            appendMessage(msg.role, msg.text, false, msg.filename);
+                        });
+                    }
+
+                    // Update active highlight in sidebar
+                    document.querySelectorAll(".history-item").forEach(el => {
+                        el.classList.toggle("active", el.getAttribute("data-session-id") === sessionId);
+                    });
+
+                    // Close mobile sidebar if open
+                    closeMobileSidebar();
+                } catch (err) {
+                    console.error("Failed to switch session:", err);
+                }
+            }
+
+            async function createNewSession() {
+                if (isGenerating) return;
+
+                stopAllSpeech();
+
+                try {
+                    const res = await fetch("/api/sessions", { method: "POST" });
+                    if (!res.ok) return;
+                    const data = await res.json();
+
+                    activeSessionId = data.id;
+                    elements.activeChatTitle.textContent = "New Conversation";
+                    elements.messagesWrapper.innerHTML = "";
+                    clearSelectedFile();
+
+                    appendMessage("bot", GGU_WELCOME_MESSAGE);
+                    await loadSessionsList();
+                    closeMobileSidebar();
+                } catch (err) {
+                    console.error("Failed to create new session:", err);
+                }
+            }
+
+            async function deleteSession(sessionId) {
+                if (isGenerating) return;
+
+                try {
+                    const res = await fetch(`/api/sessions/${sessionId}`, { method: "DELETE" });
+                    if (!res.ok) return;
+                    const data = await res.json();
+
+                    await loadSessionsList();
+                    if (sessionId === activeSessionId) {
+                        if (data.active_session_id) {
+                            selectSession(data.active_session_id);
+                        } else {
+                            createNewSession();
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to delete session:", err);
+                }
+            }
+
+            // ----------------------------------------------------------------------
+            // View Transitions
+            // ----------------------------------------------------------------------
+            function transitionToChat(initialPrompt = null) {
+                elements.landingScreen.classList.add("is-hidden");
+                elements.chatInterface.classList.add("is-active");
+
+                if (elements.bgWallpaper) {
+                    elements.bgWallpaper.classList.add("blurred");
+                }
+
+                loadSessionsList();
+                updateTtsButtonUI();
+
+                // If no messages rendered yet, show updated welcome message
+                if (elements.messagesWrapper.children.length === 0) {
+                    appendMessage("bot", GGU_WELCOME_MESSAGE);
+                }
+
+                setTimeout(() => {
+                    elements.userInput.focus();
+                }, 350);
+
+                if (initialPrompt) {
+                    sendMessage(initialPrompt);
+                }
+            }
+
+            function transitionToLanding() {
+                stopAllSpeech();
+                elements.chatInterface.classList.remove("is-active");
+                elements.landingScreen.classList.remove("is-hidden");
+
+                if (elements.bgWallpaper) {
+                    elements.bgWallpaper.classList.remove("blurred");
+                }
+                closeMobileSidebar();
+            }
+
+            // ----------------------------------------------------------------------
+            // Sidebar Drawer Toggle
+            // ----------------------------------------------------------------------
+            function toggleSidebar() {
+                if (window.innerWidth <= 860) {
+                    elements.chatSidebar.classList.toggle("mobile-open");
+                    elements.sidebarOverlay.classList.toggle("mobile-open");
+                } else {
+                    elements.chatSidebar.classList.toggle("collapsed");
+                }
+            }
+
+            function closeMobileSidebar() {
+                elements.chatSidebar.classList.remove("mobile-open");
+                elements.sidebarOverlay.classList.remove("mobile-open");
+            }
+
+            // ----------------------------------------------------------------------
+            // Send Message Async API Handler
+            // ----------------------------------------------------------------------
+            async function sendMessage(messageOverride = null) {
+                const text = (messageOverride !== null ? messageOverride : elements.userInput.value).trim();
+                const fileToSend = currentSelectedFile;
+
+                if ((!text && !fileToSend) || isGenerating) return;
+
+                stopAllSpeech();
+                lastSentMessage = text;
+
+                // 1. Display User Message Immediately
+                appendMessage("user", text || "(Attached file for analysis)", false, fileToSend ? fileToSend.name : null);
+
+                // 2. Prepare FormData with session_id
+                const formData = new FormData();
+                if (text) formData.append("message", text);
+                if (fileToSend) formData.append("file", fileToSend);
+                if (activeSessionId) formData.append("session_id", activeSessionId);
+
+                // 3. Clear inputs
+                elements.userInput.value = "";
+                elements.userInput.style.height = "auto";
+                clearSelectedFile();
+
+                // 4. Update UI state
+                isGenerating = true;
+                elements.sendBtn.disabled = true;
+                elements.attachBtn.disabled = true;
+                elements.micBtn.disabled = true;
+                elements.userInput.disabled = true;
+                showTypingIndicator();
+
+                try {
+                    const response = await fetch("/chat", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    removeTypingIndicator();
+
+                    if (!response.ok) {
+                        const errorMsg = data.error || `Server error status: ${response.status}`;
+                        appendMessage("bot", errorMsg, true);
+                    } else if (data.response) {
+                        lastSentMessage = null;
+                        appendMessage("bot", data.response);
+
+                        // Automatically read response out loud if TTS is enabled
+                        if (ttsEnabled) {
+                            speakText(data.response);
+                        }
+
+                        // If title was updated or new session created, refresh sidebar
+                        if (data.session_id) activeSessionId = data.session_id;
+                        if (data.title) elements.activeChatTitle.textContent = data.title;
+                        loadSessionsList();
+                    } else {
+                        appendMessage("bot", "No response received from the server.", true);
+                    }
+                } catch (err) {
+                    removeTypingIndicator();
+                    console.error("Communication error:", err);
+                    appendMessage("bot", `Communication error: ${err.message}`, true);
+                } finally {
+                    isGenerating = false;
+                    elements.sendBtn.disabled = false;
+                    elements.attachBtn.disabled = false;
+                    elements.micBtn.disabled = false;
+                    elements.userInput.disabled = false;
+                    elements.userInput.focus();
+                    scrollToBottom();
+                }
+            }
+
+            // ----------------------------------------------------------------------
+            // Event Listeners
+            // ----------------------------------------------------------------------
+            elements.startChatBtn.addEventListener("click", () => transitionToChat());
+            elements.backToLandingBtn.addEventListener("click", () => transitionToLanding());
+
+            elements.toggleSidebarBtn.addEventListener("click", () => toggleSidebar());
+            elements.sidebarOverlay.addEventListener("click", () => closeMobileSidebar());
+            elements.sidebarNewChatBtn.addEventListener("click", () => createNewSession());
+
+            // Clear current chat messages
+            elements.clearCurrentChatBtn.addEventListener("click", async () => {
+                if (isGenerating) return;
+                stopAllSpeech();
+                try {
+                    await fetch("/reset", { method: "POST" });
+                } catch (e) {
+                    console.warn(e);
+                }
+                elements.messagesWrapper.innerHTML = "";
+                clearSelectedFile();
+                appendMessage("bot", GGU_WELCOME_MESSAGE);
+                loadSessionsList();
+            });
+
+            // TTS Speaker Toggle
+            if (elements.ttsToggleBtn) {
+                elements.ttsToggleBtn.addEventListener("click", () => {
+                    ttsEnabled = !ttsEnabled;
+                    localStorage.setItem("ggu_tts_enabled", ttsEnabled);
+                    updateTtsButtonUI();
+                    if (!ttsEnabled) {
+                        stopAllSpeech();
+                    }
+                });
+            }
+
+            // Microphone Voice Recording Toggle
+            if (elements.micBtn) {
+                elements.micBtn.addEventListener("click", () => {
+                    if (isRecording) {
+                        stopAndSendVoiceRecording();
+                    } else {
+                        startVoiceRecording();
+                    }
+                });
+            }
+
+            if (elements.cancelRecordingBtn) {
+                elements.cancelRecordingBtn.addEventListener("click", () => {
+                    cancelVoiceRecording();
+                });
+            }
+
+            if (elements.sendRecordingBtn) {
+                elements.sendRecordingBtn.addEventListener("click", () => {
+                    stopAndSendVoiceRecording();
+                });
+            }
+
+            // Attachment button
+            elements.attachBtn.addEventListener("click", () => {
+                if (!isGenerating) elements.fileInput.click();
+            });
+
+            elements.fileInput.addEventListener("change", (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    updateFilePreview(e.target.files[0]);
+                }
+            });
+
+            elements.removeFileBtn.addEventListener("click", () => {
+                clearSelectedFile();
+            });
+
+            // Starter chips
+            elements.starterChips.forEach(chip => {
+                chip.addEventListener("click", () => {
+                    const prompt = chip.getAttribute("data-prompt");
+                    transitionToChat(prompt);
+                });
+            });
+
+            // Chat form submit
+            elements.chatForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                sendMessage();
+            });
+
+            // Enter to send, Shift+Enter for newline
+            elements.userInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    elements.chatForm.dispatchEvent(new Event("submit"));
+                }
+            });
+
+            elements.userInput.addEventListener("input", function() {
+                this.style.height = "auto";
+                const newHeight = Math.min(this.scrollHeight, 120);
+                this.style.height = newHeight + "px";
+                this.style.overflowY = this.scrollHeight > 120 ? "auto" : "hidden";
+            });
+
+            // Initialize TTS Button state
+            updateTtsButtonUI();
+
+        })();
+    </script>
+</body>
+</html>

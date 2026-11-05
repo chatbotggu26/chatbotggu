@@ -1,0 +1,335 @@
+{
+  "university_info": {
+    "name": "Godavari Global University",
+    "short_name": "GGU",
+    "legacy": "28+ Years of Academic Excellence",
+    "established_roots": "Founded under Godavari Educational Society (since 1998, flagship GIET institutions)",
+    "accreditation": "NAAC A++ Grade Accredited University",
+    "approvals": [
+      "University Grants Commission (UGC) Recognized",
+      "All India Council for Technical Education (AICTE) Approved",
+      "Pharmacy Council of India (PCI) Approved"
+    ],
+    "campus_size": "300-Acre Sprawling Green Campus",
+    "location": {
+      "city": "Rajahmundry (Rajamahendravaram)",
+      "district": "East Godavari District",
+      "state": "Andhra Pradesh",
+      "country": "India",
+      "pincode": "533296",
+      "landmark": "Chaitanya Knowledge City, NH-16, Rajanagaram"
+    },
+    "leadership": "Founded by visionary educationist Sri K.V.V. Satyanarayana Raju (Chaitanya Raju Garu), Chairman",
+    "motto": "Empowering Minds, Transforming Futures through Industry-First Education",
+    "official_website": "https://ggu.edu.in / https://giet.ac.in",
+    "admissions_contact": {
+      "phone": "+91 883 2484444, +91 96760 15566, +91 99591 74444",
+      "email": "admissions@ggu.edu.in, info@ggu.edu.in",
+      "hours": "Monday to Saturday: 9:00 AM - 5:30 PM"
+    }
+  },
+
+  "schools_and_programs": {
+    "school_of_engineering_and_technology": {
+      "name": "School of Engineering & Technology (GIET Engineering)",
+      "ug_programs": [
+        {
+          "course": "B.Tech in Computer Science & Engineering (CSE)",
+          "duration": "4 Years",
+          "eligibility": "10+2 with Mathematics, Physics, and Chemistry (MPC) with min 45-50% + AP EAPCET / JEE / GGU Entrance",
+          "description": "Comprehensive curriculum covering DSA, Operating Systems, DBMS, Full-Stack Web Development, Cloud Computing, and Software Engineering."
+        },
+        {
+          "course": "B.Tech in CSE (Artificial Intelligence & Machine Learning - AI&ML)",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "Specialized degree focusing on Deep Learning, NLP, Computer Vision, Neural Networks, and Generative AI."
+        },
+        {
+          "course": "B.Tech in CSE (Data Science)",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "Focus on Big Data Analytics, Statistical Modeling, Python/R, Machine Learning, and Data Engineering."
+        },
+        {
+          "course": "B.Tech in CSE (Cyber Security)",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "Ethical Hacking, Network Defense, Cryptography, Cloud Security, and Digital Forensics."
+        },
+        {
+          "course": "B.Tech in Electronics & Communication Engineering (ECE)",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "VLSI Design, Embedded Systems, IoT, Digital Signal Processing, RF & Microwave Engineering."
+        },
+        {
+          "course": "B.Tech in Electrical & Electronics Engineering (EEE)",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "Renewable Energy, Smart Grid Systems, Electric Vehicles (EV), Power Electronics, and Automation."
+        },
+        {
+          "course": "B.Tech in Mechanical Engineering",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "Robotics, CAD/CAM/CAE, Thermal Engineering, Industrial Automation, and Mechatronics."
+        },
+        {
+          "course": "B.Tech in Civil Engineering",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "Structural Analysis, BIM, Smart Cities Planning, Geotechnical Engineering, and GIS."
+        },
+        {
+          "course": "B.Tech in Automobile / Mining / Petroleum Engineering",
+          "duration": "4 Years",
+          "eligibility": "10+2 with MPC + AP EAPCET / JEE",
+          "description": "Core industry-ready engineering branches with dedicated labs and industrial field visits."
+        }
+      ],
+      "pg_programs": [
+        "M.Tech in Computer Science & Engineering",
+        "M.Tech in VLSI & Embedded Systems",
+        "M.Tech in Power Systems",
+        "M.Tech in Structural Engineering",
+        "M.Tech in Thermal Engineering"
+      ]
+    },
+
+    "school_of_computer_applications": {
+      "name": "School of Computer Applications & IT",
+      "programs": [
+        {
+          "course": "BCA (Bachelor of Computer Applications)",
+          "duration": "3 Years",
+          "eligibility": "10+2 from recognized board in any stream with Mathematics/Computer background"
+        },
+        {
+          "course": "MCA (Master of Computer Applications)",
+          "duration": "2 Years",
+          "eligibility": "BCA / B.Sc / B.Tech or equivalent graduation with min 50% + AP ICET / GGU Entrance"
+        }
+      ]
+    },
+
+    "school_of_business_and_management": {
+      "name": "School of Management & Business Studies (GIET SMS)",
+      "programs": [
+        {
+          "course": "BBA (Bachelor of Business Administration)",
+          "duration": "3 Years",
+          "eligibility": "10+2 from any recognized stream"
+        },
+        {
+          "course": "MBA (Master of Business Administration)",
+          "duration": "2 Years",
+          "eligibility": "Graduation with minimum 50% aggregate + AP ICET / MAT / CAT / GGU Entrance",
+          "specializations": [
+            "Human Resource Management (HR)",
+            "Financial Management",
+            "Marketing & Digital Marketing",
+            "Business Analytics & Data Driven Decision Making",
+            "Logistics & Supply Chain Management",
+            "International Business"
+          ]
+        }
+      ]
+    },
+
+    "school_of_pharmacy": {
+      "name": "School of Pharmacy (GIET School of Pharmacy)",
+      "programs": [
+        {
+          "course": "B.Pharm (Bachelor of Pharmacy)",
+          "duration": "4 Years",
+          "eligibility": "10+2 with BiPC or MPC with min 45-50% + AP EAPCET"
+        },
+        {
+          "course": "M.Pharm (Pharmaceutics / Pharmacology / Pharmaceutical Analysis)",
+          "duration": "2 Years",
+          "eligibility": "B.Pharm with min 55% + GPAT / AP PGECET"
+        },
+        {
+          "course": "Pharm.D (Doctor of Pharmacy)",
+          "duration": "6 Years (including 1-year clinical residency in multi-specialty hospital)",
+          "eligibility": "10+2 with BiPC or MPC + AP EAPCET"
+        }
+      ]
+    },
+
+    "school_of_agricultural_sciences": {
+      "name": "School of Agricultural Sciences",
+      "programs": [
+        {
+          "course": "B.Sc (Hons) Agriculture",
+          "duration": "4 Years",
+          "eligibility": "10+2 with BiPC / Agriculture stream with min 50% + AP EAPCET / GGU CET",
+          "features": "Hands-on agronomy training, soil testing labs, polyhouses, experimental farmlands on campus, and Rural Agricultural Work Experience (RAWE)."
+        }
+      ]
+    },
+
+    "school_of_polytechnic": {
+      "name": "Diploma / Polytechnic Engineering",
+      "programs": [
+        "Diploma in Computer Engineering (CME)",
+        "Diploma in Electronics & Communication Engineering (ECE)",
+        "Diploma in Electrical & Electronics Engineering (EEE)",
+        "Diploma in Mechanical Engineering (ME)",
+        "Diploma in Civil Engineering (CE)"
+      ],
+      "duration": "3 Years (Direct 2nd year entry for ITI / Vocational students)",
+      "eligibility": "10th Class (SSC) pass + AP POLYCET"
+    }
+  },
+
+  "admissions_process": {
+    "modes": [
+      {
+        "category": "Convenor Quota (Category A)",
+        "description": "Allotted through Government of Andhra Pradesh counseling (AP EAPCET for B.Tech/Pharmacy/Agri, AP ICET for MBA/MCA, AP PGECET for M.Tech/M.Pharm, AP POLYCET for Diploma)."
+      },
+      {
+        "category": "Management / Direct Admission Quota (Category B & NRI)",
+        "description": "Direct admission based on merit in 10+2 / Diploma / Degree marks or national level exam scores (JEE Main, CAT, MAT, GATE, GPAT, or GGU Scholastic Aptitude Test)."
+      }
+    ],
+    "scholarships": [
+      "Merit Scholarships for top ranks in EAPCET & JEE Main",
+      "Sports Excellence Scholarships for State & National level medalists",
+      "Tuition Fee Concessions for economically backward deserving students",
+      "Full compliance with AP Government Fee Reimbursement policies (Jagananna Vidya Deevena & Vasathi Deevena where eligible)"
+    ],
+    "how_to_apply": "Visit the campus admissions cell at Chaitanya Knowledge City, Rajanagaram or apply online through the university portal: https://ggu.edu.in/admissions."
+  },
+
+  "placements_and_careers": {
+    "placement_cell": "Corporate Relations & Placement Division (CRPD)",
+    "annual_offers": "2,000+ Placement Offers consistently each academic year",
+    "highest_package": "₹25+ LPA (Lakhs Per Annum)",
+    "average_package": "₹4.5 LPA - ₹6.5 LPA",
+    "top_recruiters": [
+      "Tata Consultancy Services (TCS)",
+      "Infosys",
+      "Wipro",
+      "Cognizant",
+      "Capgemini",
+      "Accenture",
+      "Tech Mahindra",
+      "Amazon",
+      "Virtusa",
+      "HCL Technologies",
+      "L&T Technology Services",
+      "Hexaware",
+      "DXC Technology",
+      "Mindtree",
+      "Hyundai Mobis",
+      "Kia Motors"
+    ],
+    "student_training": [
+      "Campus Recruitment Training (CRT) starting from 2nd year",
+      "Competitive Coding & DSA bootcamps in Python, Java, and C++",
+      "Aptitude, Logical Reasoning, and Verbal Ability coaching",
+      "Mock Technical Interviews & HR group discussion workshops",
+      "Hackathon Incubation: Mentorship for Smart India Hackathon (SIH), Innovexa, and global code competitions"
+    ]
+  },
+
+  "campus_facilities": {
+    "campus_area": "300 Acres of lush, green, Wi-Fi enabled smart campus",
+    "classrooms": "Modern air-conditioned lecture theaters and smart classrooms equipped with multimedia projectors and audio-visual aids",
+    "library": {
+      "name": "Central Knowledge Resource Center",
+      "holdings": "Over 100,000 books, 15,000+ reference volumes, 300+ national & international print journals",
+      "digital_library": "Access to IEEE Xplore, DELNET, Springer Nature, ScienceDirect, and NPTEL video lectures",
+      "facility": "Air-conditioned 24/7 reading halls with high-speed internet"
+    },
+    "laboratories": [
+      "Apple Authorized iOS Development Lab",
+      "AI & High-Performance Computing Research Cluster",
+      "Internet of Things (IoT) & Robotics Center of Excellence",
+      "Siemens Industrial Automation & Robotics Skill Center",
+      "Advanced Cloud Computing & Cyber Security Labs",
+      "Pharmaceutical Chemistry, Pharmacology & Formulation Labs",
+      "Manufacturing & CNC Machine Tools Workshop"
+    ],
+    "hostels": {
+      "details": "Separate, highly secure hostel complexes for boys and girls accommodating 4,000+ students on campus",
+      "amenities": [
+        "Well-ventilated single, double, and triple-sharing rooms (AC & Non-AC options)",
+        "High-speed campus Wi-Fi access",
+        "RO purified mineral drinking water plants",
+        "24/7 solar and electrical hot water supply",
+        "Hygienic multi-cuisine dining hall serving North & South Indian vegetarian and non-vegetarian menus prepared with steam kitchens",
+        "24/7 security with CCTV surveillance and biometric attendance"
+      ]
+    },
+    "sports_and_fitness": {
+      "outdoor": "Full-size Cricket Ground, Football Field, 400m Athletic Track, Basketball Courts, Volleyball, Tennis Courts",
+      "indoor": "Synthetic Badminton Courts, Table Tennis, Chess, Carrom, Modern Gymnasium with certified fitness instructors"
+    },
+    "health_and_wellness": "On-campus 24/7 Health Center with qualified doctors, resident staff nurses, emergency pharmacy, and 24/7 dedicated ambulance service",
+    "amenities_and_convenience": [
+      "State Bank of India (SBI) and Union Bank branches with on-campus 24/7 ATMs",
+      "University Cafeterias, Nescafe coffee lounges, snack bars, and bakery",
+      "Campus stationery shop, photocopying, and textbook store",
+      "Uninterrupted 100% green captive solar power backup"
+    ],
+    "transport": "Fleet of 80+ university luxury buses connecting Rajahmundry, Kakinada, Mandapeta, Ravulapalem, Ramachandrapuram, Tanuku, Kovvur, Nidadavole, and nearby towns"
+  },
+
+  "student_life_and_clubs": {
+    "annual_fests": [
+      {
+        "name": "Maitree",
+        "type": "Annual National Inter-Collegiate Cultural Festival featuring celebrity performances, battle of bands, dance, fashion, and art"
+      },
+      {
+        "name": "Spardha",
+        "type": "Annual Inter-University Sports Carnival"
+      },
+      {
+        "name": "Technova / Sanket",
+        "type": "National Level Technical Symposium & Project Expo featuring paper presentations, robotics contests, and hackathons"
+      }
+    ],
+    "clubs": [
+      "Google Developer Student Club (GDSC GGU)",
+      "Innovexa Innovation & Smart India Hackathon (SIH) Cell",
+      "Robotics & Drone Tech Club",
+      "Competitive Coding & Open Source Society",
+      "Literary, Oratory & Debate Club",
+      "Music, Photography & Visual Arts Club",
+      "National Cadet Corps (NCC) Unit",
+      "National Service Scheme (NSS) Community Outreach Wings"
+    ]
+  },
+
+  "frequently_asked_questions": [
+    {
+      "question": "What is the NAAC accreditation of GGU?",
+      "answer": "Godavari Global University (GGU) is accredited with the highest NAAC A++ Grade, reflecting superior academic standards, state-of-the-art infrastructure, and strong placement outcomes."
+    },
+    {
+      "question": "How large is the GGU campus?",
+      "answer": "GGU features a massive, vibrant 300-acre green campus located in Chaitanya Knowledge City along NH-16 in Rajahmundry (Rajamahendravaram), Andhra Pradesh."
+    },
+    {
+      "question": "Does GGU offer engineering degrees in CSE with AI & ML or Data Science?",
+      "answer": "Yes! The School of Engineering & Technology offers specialized 4-year B.Tech programs in CSE with AI & ML, Data Science, and Cyber Security, alongside traditional CSE, ECE, EEE, Mechanical, Civil, Mining, and Automobile Engineering."
+    },
+    {
+      "question": "How are the hostel and mess facilities at GGU?",
+      "answer": "GGU has separate on-campus hostels for boys and girls with AC and Non-AC options, 24/7 Wi-Fi, RO water, solar hot water, 24/7 medical care, strict security, and hygienic multi-cuisine dining serving quality North and South Indian food."
+    },
+    {
+      "question": "What companies visit GGU for placements?",
+      "answer": "Over 2,000+ offers are bagged annually from top recruiters including TCS, Infosys, Wipro, Cognizant, Accenture, Capgemini, Tech Mahindra, Amazon, Virtusa, HCL, and L&T, with highest packages reaching ₹25+ LPA."
+    },
+    {
+      "question": "Can I get help with engineering subjects or project work?",
+      "answer": "Yes! As the GGU AI Assistant, I can explain engineering concepts (DBMS, Operating Systems, Computer Networks, Data Structures, AI/ML, VLSI, CAD, etc.), debug code, and analyze uploaded course documents and PDFs."
+    }
+  ]
+}

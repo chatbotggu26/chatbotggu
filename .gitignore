@@ -1,0 +1,29 @@
+# Environment variables and sensitive secrets
+.env
+.env.*
+*.env
+*.secret
+*.key
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Sessions and Uploads
+uploads/*
+!uploads/.gitkeep
+flask_session/
+.flask_session/
+
+# Logs & temporary files
+*.log
+.pytest_cache/
+
