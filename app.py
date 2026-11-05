@@ -30,13 +30,20 @@ logger = logging.getLogger(__name__)
 
 # Application Configuration
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "ggu-secret-session-key-ai-2026")
+# Detect Vercel or Serverless environment (where only /tmp is writable)
+IS_VERCEL = bool(os.getenv("VERCEL"))
+if IS_VERCEL:
+    app.config["SESSION_FILE_DIR"] = "/tmp/flask_session"
+    app.config["UPLOAD_FOLDER"] = "/tmp/uploads"
+else:
+    app.config["SESSION_FILE_DIR"] = os.path.join(app.root_path, "flask_session")
+    app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "uploads")
+
 app.config["SESSION_TYPE"] = "filesystem"
-app.config["SESSION_FILE_DIR"] = os.path.join(app.root_path, "flask_session")
 app.config["SESSION_PERMANENT"] = False
-app.config["UPLOAD_FOLDER"] = os.path.join(app.root_path, "uploads")
 app.config["MAX_CONTENT_LENGTH"] = 32 * 1024 * 1024  # 32 MB max file size
 
-# Ensure upload directory exists
+# Ensure upload and session directories exist
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 os.makedirs(app.config["SESSION_FILE_DIR"], exist_ok=True)
 
